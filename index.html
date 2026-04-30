@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Батя — штаб задач и хранилище</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --bg:#f7f6f2; --surface:#fbfbf9; --surface-2:#f2efea; --text:#29261f; --muted:#6f6b64; --border:#d8d3cb;
+      --primary:#0c696f; --primary-2:#dbe9e7; --success:#4b7c2b; --warn:#9a4e1d; --warn-bg:#f5e6da; --shadow:0 10px 30px rgba(25,25,25,.08);
+      --radius:18px; --radius-sm:12px; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem;
+      --text-sm:clamp(.875rem,.8rem + .2vw,1rem); --text-base:clamp(1rem,.95rem + .2vw,1.125rem); --text-lg:clamp(1.2rem,1.05rem + .8vw,1.7rem); --text-xl:clamp(1.7rem,1.25rem + 1.5vw,2.7rem);
+      --font-body:'Satoshi', Inter, sans-serif; --font-display:'Zodiak', Georgia, serif;
+    }
+    [data-theme="dark"] {
+      --bg:#171614; --surface:#1f1d1a; --surface-2:#2b2825; --text:#ece7e1; --muted:#a39d95; --border:#3b3732;
+      --primary:#5aabb4; --primary-2:#213437; --success:#8ab665; --warn:#d79969; --warn-bg:#3a2e26; --shadow:0 14px 28px rgba(0,0,0,.3);
+    }
+    *{box-sizing:border-box} html,body{margin:0} body{font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:var(--text-base);line-height:1.55}
+    a,button{transition:.18s ease} button{font:inherit;border:none;cursor:pointer}
+    .app{display:grid;grid-template-columns:300px 1fr;min-height:100dvh}
+    .side{padding:var(--space-6);background:var(--surface);border-right:1px solid var(--border)}
+    .brand{display:flex;gap:var(--space-3);align-items:center;margin-bottom:var(--space-8)}
+    .mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--primary),#8cc5ca);display:grid;place-items:center;color:#fff;font-weight:700}
+    .brand h1{margin:0;font-family:var(--font-display);font-size:var(--text-lg)} .brand p{margin:.2rem 0 0;color:var(--muted);font-size:var(--text-sm)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .nav{padding:var(--space-4)} .nav a{display:block;text-decoration:none;color:var(--text);padding:.75rem .9rem;border-radius:12px} .nav a:hover{background:var(--surface-2)}
+    .hint,.storage-status{margin-top:var(--space-4);padding:var(--space-4)} .small{font-size:var(--text-sm);color:var(--muted)}
+    .theme{margin-top:var(--space-4);width:100%;padding:.9rem 1rem;background:var(--primary);color:#fff;border-radius:14px}
+    .main{padding:var(--space-6);display:grid;gap:var(--space-6)}
+    .hero{display:flex;justify-content:space-between;gap:var(--space-6);flex-wrap:wrap}
+    .hero h2{margin:0 0 .6rem;font-family:var(--font-display);font-size:var(--text-xl);line-height:1.05}
+    .hero p{margin:0;max-width:68ch;color:var(--muted)}
+    .actions{display:flex;gap:var(--space-3);flex-wrap:wrap}.btn{padding:.9rem 1.1rem;border-radius:999px}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:var(--surface-2);color:var(--text)}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)} .stat{padding:var(--space-4)} .stat .v{font-size:var(--text-xl);font-weight:700;line-height:1.1;margin:.35rem 0}
+    .layout{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--space-6)} .panel{padding:var(--space-5)} .panel h3{margin:0 0 .8rem;font-size:var(--text-lg)}
+    .field{display:grid;gap:.4rem;margin-bottom:var(--space-4)} .field input,.field textarea,.field select{width:100%;padding:.9rem 1rem;border-radius:14px;border:1px solid var(--border);background:var(--bg);color:var(--text)} .field textarea{min-height:120px;resize:vertical}
+    .chips{display:flex;gap:.5rem;flex-wrap:wrap}.chip{padding:.25rem .65rem;border-radius:999px;background:var(--primary-2);color:var(--primary);font-size:.82rem}
+    .board{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)} .col{padding:var(--space-4)} .colhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3)} .count{padding:.15rem .5rem;border-radius:999px;background:var(--surface-2);font-size:.8rem;color:var(--muted)}
+    .tasklist{display:grid;gap:var(--space-3)} .task{padding:var(--space-4);background:var(--surface);border:1px solid var(--border);border-radius:14px}.task h4{margin:0 0 .4rem;font-size:1rem}.task p{margin:0 0 .55rem;font-size:.92rem;color:var(--muted)} .task footer{display:flex;justify-content:space-between;gap:.5rem;align-items:center;font-size:.8rem;color:var(--muted)}
+    .pill{padding:.2rem .55rem;border-radius:999px;background:var(--surface-2)} .method{background:#e1efe6;color:#2e5b43}.product{background:#e1e9f5;color:#33598f}.marketing{background:#f7ead9;color:#8e5d19}.sales{background:#f2dfe9;color:#8b3362}.batya{background:var(--primary-2);color:var(--primary)}
+    .storage-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)} .storage-card{padding:var(--space-4)} .storage-card h4{margin:0 0 .4rem}.ok{color:var(--success)} .warn{color:var(--warn)}
+    .steps{margin:0;padding-left:1.2rem}.steps li{margin:.45rem 0}
+    .progress{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:.8rem}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--success));width:0}
+    .footer-note{padding:var(--space-4);background:var(--warn-bg);border-radius:14px;color:var(--text)}
+    @media (max-width:1080px){.app{grid-template-columns:1fr}.stats,.layout,.board,.storage-grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:760px){.main,.side{padding:var(--space-4)}.stats,.layout,.board,.storage-grid{grid-template-columns:1fr}.actions .btn{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <div class="mark">Б</div>
+        <div><h1>Батя</h1><p>Штаб задач, прогресса и хранилища</p></div>
+      </div>
+      <nav class="card nav">
+        <a href="#overview">Обзор</a>
+        <a href="#capture">Новая задача</a>
+        <a href="#board">Доска</a>
+        <a href="#storage">Хранилище</a>
+        <a href="#manual">Инструкция</a>
+      </nav>
+      <div class="card hint">
+        <strong>Логика работы</strong>
+        <div class="small">Сначала Батя принимает материал, потом классифицирует, потом ставит задачи ролям и сохраняет результат.</div>
+      </div>
+      <div class="card storage-status">
+        <strong>Статус хранилища</strong>
+        <div class="small" id="storageMode">Пока локальный режим: экспорт JSON вручную</div>
+      </div>
+      <button class="theme" id="themeBtn">Сменить тему</button>
+    </aside>
+    <main class="main" id="overview">
+      <section class="hero">
+        <div>
+          <h2>Обновлённый дашборд Бати</h2>
+          <p>Теперь здесь не только задачи, но и понятная логика подключения облачного хранилища. На первом этапе можно жить через GitHub Pages + экспорт JSON, а на втором — подключить Supabase для автоматического сохранения структуры и Яндекс.Диск для тяжёлых файлов и архива.</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="seedBtn">Заполнить стартом</button>
+          <button class="btn btn-soft" id="exportBtn">Экспорт JSON</button>
+          <label class="btn btn-soft" for="importFile">Импорт JSON</label>
+          <input id="importFile" type="file" accept="application/json" hidden>
+        </div>
+      </section>
+      <section class="stats">
+        <article class="card stat"><div class="small">Всего задач</div><div class="v" id="mTotal">0</div><div class="small">Все роли в одном поле</div></article>
+        <article class="card stat"><div class="small">В работе</div><div class="v" id="mProgress">0</div><div class="small">Не держать больше 5 активных</div></article>
+        <article class="card stat"><div class="small">Готово</div><div class="v" id="mDone">0</div><div class="small">Превращай в шаблоны</div></article>
+        <article class="card stat"><div class="small">Прогресс цикла</div><div class="v" id="mPercent">0%</div><div class="small">По текущему набору задач</div></article>
+      </section>
+      <section class="layout" id="capture">
+        <form class="card panel" id="taskForm">
+          <h3>Добавить задачу</h3>
+          <div class="field"><label>Название</label><input id="title" placeholder="Например: подключить Supabase"></div>
+          <div class="field"><label>Роль</label><select id="role"><option value="batya">Батя</option><option value="method">Методолог</option><option value="product">Продуктолог</option><option value="marketing">Маркетолог</option><option value="sales">Продажник</option></select></div>
+          <div class="field"><label>Статус</label><select id="status"><option value="inbox">Вход</option><option value="todo">К исполнению</option><option value="progress">В работе</option><option value="done">Готово</option></select></div>
+          <div class="field"><label>Комментарий</label><textarea id="desc" placeholder="Что это за задача и зачем"></textarea></div>
+          <div class="field"><label>Источник</label><input id="source" placeholder="Отзыв / консультация / идея / техзадача"></div>
+          <button class="btn btn-primary" type="submit">Добавить</button>
+        </form>
+        <section class="card panel" id="manual">
+          <h3>Какой стек я советую</h3>
+          <div class="chips"><span class="chip">GitHub Pages</span><span class="chip">Supabase</span><span class="chip">Яндекс.Диск</span></div>
+          <ol class="steps">
+            <li>GitHub Pages оставить как витрину и место, где живёт сам дашборд.[web:248][web:283]</li>
+            <li>Supabase использовать для автоматического хранения задач, статусов, заметок и структуры данных.[web:284][web:287]</li>
+            <li>Яндекс.Диск использовать как файловый склад: видео, аудио, PDF, архивы, расшифровки, резервные копии.[web:285][web:288]</li>
+          </ol>
+          <div class="footer-note">Почему так: GitHub Pages отлично подходит для статического сайта, но не для записи данных; Supabase даёт удобные buckets и базу данных; Яндекс.Диск удобен как файловый архив, но OAuth в браузере лучше не держать напрямую.[web:248][web:284][web:290]</div>
+          <div class="progress"><span id="progressBar"></span></div>
+        </section>
+      </section>
+      <section id="board">
+        <div class="board">
+          <section class="card col" data-status="inbox"><div class="colhead"><strong>Вход</strong><span class="count">0</span></div><div class="tasklist"></div></section>
+          <section class="card col" data-status="todo"><div class="colhead"><strong>К исполнению</strong><span class="count">0</span></div><div class="tasklist"></div></section>
+          <section class="card col" data-status="progress"><div class="colhead"><strong>В работе</strong><span class="count">0</span></div><div class="tasklist"></div></section>
+          <section class="card col" data-status="done"><div class="colhead"><strong>Готово</strong><span class="count">0</span></div><div class="tasklist"></div></section>
+        </div>
+      </section>
+      <section id="storage" class="storage-grid">
+        <article class="card storage-card">
+          <h4>Вариант 1 — быстрый старт</h4>
+          <div class="small">GitHub Pages + экспорт JSON + папка на Яндекс.Диске</div>
+          <ol class="steps">
+            <li>Оставь сайт на GitHub Pages.[web:248]</li>
+            <li>В дашборде используй экспорт JSON после важных изменений.</li>
+            <li>На Яндекс.Диске создай папки: <strong>Batya/Progress</strong>, <strong>Batya/Reviews</strong>, <strong>Batya/Consultations</strong>, <strong>Batya/Videos</strong>.[web:288]</li>
+            <li>Сохраняй JSON в Progress, тяжёлые материалы — по своим папкам.</li>
+          </ol>
+          <div class="small ok">Плюс: запустишься сегодня. Минус: сохранение не автоматическое.</div>
+        </article>
+        <article class="card storage-card">
+          <h4>Вариант 2 — нормальная рабочая система</h4>
+          <div class="small">GitHub Pages + Supabase + Яндекс.Диск как архив</div>
+          <ol class="steps">
+            <li>Создай проект в Supabase Dashboard.[web:287]</li>
+            <li>Создай таблицу задач и bucket для JSON/вложений или хотя бы bucket для файлов.[web:284][web:289]</li>
+            <li>Подключи сайт к Supabase через публичный anon key, а service key не используй в браузере.[web:284][web:289]</li>
+            <li>Яндекс.Диск оставь для резервного хранения исходников и закрытых материалов.[web:285][web:290]</li>
+          </ol>
+          <div class="small warn">Это лучший баланс: структура живёт в Supabase, тяжёлые архивы — в Диске.</div>
+        </article>
+        <article class="card storage-card">
+          <h4>Инструкция: Supabase по шагам</h4>
+          <ol class="steps">
+            <li>Зайди в Supabase и нажми <strong>New project</strong>.[web:287]</li>
+            <li>После создания проекта открой <strong>Storage</strong> → <strong>New Bucket</strong> и создай bucket, например <strong>batya-files</strong>.[web:284]</li>
+            <li>Открой <strong>Project Settings → API</strong>, сохрани <strong>Project URL</strong> и <strong>anon key</strong>.</li>
+            <li>Эти два значения можно безопасно использовать на фронтенде; service role key — нельзя.[web:284][web:289]</li>
+            <li>Позже в код сайта добавляется клиент Supabase и кнопка «Сохранить в облако».</li>
+          </ol>
+        </article>
+        <article class="card storage-card">
+          <h4>Инструкция: Яндекс.Диск по шагам</h4>
+          <ol class="steps">
+            <li>Создай отдельную папку под систему Батя.</li>
+            <li>Если хочешь только ручное хранение — API не нужен, просто сохраняй туда JSON и материалы.</li>
+            <li>Если хочешь автозагрузку, придётся делать OAuth-приложение и выдавать права Disk API.[web:288][web:290]</li>
+            <li>Не храни OAuth-токен Яндекс.Диска прямо в HTML на GitHub Pages — это небезопасно.[web:285][web:290]</li>
+            <li>Для автоматизации Яндекс.Диска лучше использовать промежуточный сервер или serverless-функцию.</li>
+          </ol>
+        </article>
+      </section>
+    </main>
+  </div>
+<script>
+const state={tasks:[]};
+const roleNames={batya:'Батя',method:'Методолог',product:'Продуктолог',marketing:'Маркетолог',sales:'Продажник'};
+function id(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function render(){
+  const total=state.tasks.length, prog=state.tasks.filter(t=>t.status==='progress').length, done=state.tasks.filter(t=>t.status==='done').length, percent=total?Math.round(done/total*100):0;
+  document.getElementById('mTotal').textContent=total; document.getElementById('mProgress').textContent=prog; document.getElementById('mDone').textContent=done; document.getElementById('mPercent').textContent=percent+'%'; document.getElementById('progressBar').style.width=percent+'%';
+  document.querySelectorAll('.col').forEach(col=>{
+    const st=col.dataset.status, list=col.querySelector('.tasklist'); const items=state.tasks.filter(t=>t.status===st); col.querySelector('.count').textContent=items.length; list.innerHTML='';
+    if(!items.length){list.innerHTML='<div class="small">Пока пусто</div>'; return;}
+    items.forEach(t=>{const el=document.createElement('article'); el.className='task'; el.draggable=true; el.dataset.id=t.id; el.innerHTML=`<h4>${esc(t.title)}</h4><p>${esc(t.desc)}</p><footer><span class="pill ${t.role}">${roleNames[t.role]}</span><span>${esc(t.source||'')}</span></footer>`; el.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',t.id)); el.addEventListener('dblclick',()=>{if(confirm('Удалить задачу?')){state.tasks=state.tasks.filter(x=>x.id!==t.id);render();}}); list.appendChild(el);});
+  });
+}
+document.getElementById('taskForm').addEventListener('submit',e=>{e.preventDefault(); state.tasks.unshift({id:id(),title:title.value.trim(),role:role.value,status:status.value,desc:desc.value.trim(),source:source.value.trim()}); e.target.reset(); render();});
+document.querySelectorAll('.col').forEach(col=>{col.addEventListener('dragover',e=>e.preventDefault()); col.addEventListener('drop',e=>{e.preventDefault(); const task=state.tasks.find(t=>t.id===e.dataTransfer.getData('text/plain')); if(task){task.status=col.dataset.status; render();}});});
+document.getElementById('seedBtn').addEventListener('click',()=>{state.tasks=[
+{id:id(),title:'Собрать мастер-промпт Батя',role:'batya',status:'todo',desc:'Закрепить протокол маршрутизации входящих материалов.',source:'Старт системы'},
+{id:id(),title:'Подключить облачное хранилище',role:'batya',status:'progress',desc:'Выбрать Supabase как рабочий storage-слой, Яндекс.Диск как архив.',source:'Техконтур'},
+{id:id(),title:'Создать проект в Supabase',role:'product',status:'todo',desc:'Подготовить базу для задач, заметок и файлов.',source:'Инфраструктура'},
+{id:id(),title:'Создать папки на Яндекс.Диске',role:'batya',status:'todo',desc:'Progress, Reviews, Consultations, Videos, Archive.',source:'Архив'},
+{id:id(),title:'Собрать 20 сильных отзывов',role:'marketing',status:'inbox',desc:'Подготовить основу для кейсов, лендинга и клуба.',source:'Отзывы'},
+{id:id(),title:'Вытащить повторяющиеся боли из консультаций',role:'method',status:'progress',desc:'Собрать паттерны запросов собственников.',source:'Расшифровки'},
+{id:id(),title:'Сценарий личных приглашений в ядро',role:'sales',status:'todo',desc:'Подготовить сообщения для 5–10 первых людей.',source:'Первый набор'},
+{id:id(),title:'Базовый GitHub Pages развёрнут',role:'batya',status:'done',desc:'Сайт уже работает на GitHub Pages.',source:'GitHub'}
+]; render();});
+document.getElementById('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='batya-state.json'; a.click(); URL.revokeObjectURL(a.href);});
+document.getElementById('importFile').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f)return; try{const text=await f.text(); const parsed=JSON.parse(text); if(Array.isArray(parsed.tasks)){state.tasks=parsed.tasks; render();}}catch(err){alert('Не удалось импортировать JSON');} e.target.value='';});
+document.getElementById('themeBtn').addEventListener('click',()=>{const root=document.documentElement; root.setAttribute('data-theme', root.getAttribute('data-theme')==='dark'?'light':'dark');});
+render();
+</script>
+</body>
+</html>
