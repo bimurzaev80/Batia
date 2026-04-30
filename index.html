@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Батя — дашборд задач</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9; --color-surface-offset:#edeae5; --color-border:#d4d1ca;
+      --color-text:#28251d; --color-text-muted:#6f6d67; --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-soft:#dbe9e7; --color-warning:#964219; --color-warning-soft:#f0dfd5; --color-success:#437a22; --color-success-soft:#dbe7d3;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.05); --shadow-md:0 10px 30px rgba(26,26,26,.08);
+      --radius-sm:.5rem; --radius-md:.9rem; --radius-lg:1.25rem; --radius-full:999px;
+      --font-body:'Satoshi', Inter, sans-serif; --font-display:'Zodiak', Georgia, serif;
+    }
+    [data-theme="dark"] {
+      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#2a2926; --color-border:#393836;
+      --color-text:#e1dfdb; --color-text-muted:#9a9892; --color-primary:#4f98a3; --color-primary-hover:#6caeb8; --color-primary-soft:#243537; --color-warning:#d69268; --color-warning-soft:#3b2e27; --color-success:#8fb86f; --color-success-soft:#293528;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.25); --shadow-md:0 12px 28px rgba(0,0,0,.35);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);background:var(--color-bg);color:var(--color-text);line-height:1.6}
+    button,input,textarea,select{font:inherit}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100dvh}
+    .sidebar{padding:var(--space-6);background:var(--color-surface);border-right:1px solid var(--color-border);position:sticky;top:0;height:100dvh}
+    .logo{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8)}
+    .logo-mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--color-primary),color-mix(in srgb,var(--color-primary) 60%, white));display:grid;place-items:center;color:white;font-weight:700}
+    .logo h1{font-family:var(--font-display);font-size:var(--text-lg);line-height:1.1;margin:0}
+    .logo p{margin:.1rem 0 0;color:var(--color-text-muted);font-size:var(--text-sm)}
+    .nav-card,.hint,.widget,.board-col,.composer,.protocol,.inbox-item,.task{background:var(--color-surface-2);border:1px solid color-mix(in srgb,var(--color-text) 10%, transparent);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+    .nav-card{padding:var(--space-4)}
+    .nav-card ul{list-style:none;padding:0;margin:0;display:grid;gap:var(--space-2)}
+    .nav-card a{display:block;text-decoration:none;color:var(--color-text);padding:.7rem .8rem;border-radius:var(--radius-md)}
+    .nav-card a:hover{background:var(--color-surface-offset)}
+    .hint{margin-top:var(--space-4);padding:var(--space-4)}
+    .hint strong{display:block;margin-bottom:.35rem}
+    .theme-toggle{margin-top:var(--space-4);width:100%;border:none;background:var(--color-primary);color:#fff;padding:.9rem 1rem;border-radius:var(--radius-md);cursor:pointer}
+    .theme-toggle:hover{background:var(--color-primary-hover)}
+    .content{padding:var(--space-6);display:grid;gap:var(--space-6)}
+    .hero{display:flex;justify-content:space-between;gap:var(--space-6);align-items:flex-start;flex-wrap:wrap}
+    .hero h2{font-family:var(--font-display);font-size:var(--text-xl);line-height:1.05;margin:0 0 .5rem}
+    .hero p{margin:0;color:var(--color-text-muted);max-width:70ch}
+    .hero-actions{display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .btn{border:none;border-radius:var(--radius-full);padding:.9rem 1.15rem;cursor:pointer}
+    .btn-primary{background:var(--color-primary);color:#fff}
+    .btn-primary:hover{background:var(--color-primary-hover)}
+    .btn-secondary{background:var(--color-surface-offset);color:var(--color-text)}
+    .grid-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)}
+    .widget{padding:var(--space-4)}
+    .widget .label{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .widget .value{font-size:var(--text-xl);font-weight:700;line-height:1.1;margin-top:.35rem}
+    .widget .meta{margin-top:.35rem;font-size:var(--text-sm)}
+    .meta.ok{color:var(--color-success)} .meta.warn{color:var(--color-warning)}
+    .layout{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--space-6)}
+    .composer,.protocol{padding:var(--space-5)}
+    .composer h3,.protocol h3,.board-head h3,.inbox-head h3{margin:0 0 .7rem;font-size:var(--text-lg)}
+    .field{display:grid;gap:.45rem;margin-bottom:var(--space-4)}
+    .field label{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .field input,.field textarea,.field select{width:100%;padding:.9rem 1rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-bg);color:var(--color-text)}
+    .field textarea{min-height:130px;resize:vertical}
+    .tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem}
+    .tag{display:inline-flex;align-items:center;padding:.28rem .68rem;border-radius:var(--radius-full);font-size:var(--text-xs);background:var(--color-primary-soft);color:var(--color-primary)}
+    .protocol ul{margin:0;padding-left:1.2rem}
+    .protocol li{margin:.25rem 0}
+    .board-wrap{display:grid;gap:var(--space-4)}
+    .board-head,.inbox-head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4)}
+    .board{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:var(--space-4);overflow:auto;padding-bottom:var(--space-2)}
+    .board-col{padding:var(--space-4);min-height:320px}
+    .col-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3)}
+    .col-title h4{margin:0;font-size:var(--text-base)}
+    .count{padding:.18rem .55rem;border-radius:var(--radius-full);background:var(--color-surface-offset);font-size:var(--text-xs);color:var(--color-text-muted)}
+    .task-list{display:grid;gap:var(--space-3)}
+    .task{padding:var(--space-4);cursor:grab}
+    .task h5{margin:0 0 .4rem;font-size:var(--text-base)}
+    .task p{margin:0 0 .6rem;font-size:var(--text-sm);color:var(--color-text-muted)}
+    .task footer{display:flex;justify-content:space-between;gap:var(--space-2);align-items:center;font-size:var(--text-xs);color:var(--color-text-muted)}
+    .pill{padding:.22rem .52rem;border-radius:var(--radius-full);background:var(--color-surface-offset)}
+    .pill.role-method{background:#e4efe9;color:#24503b}
+    .pill.role-product{background:#e4ebf5;color:#315189}
+    .pill.role-marketing{background:#f7ead8;color:#8b5a18}
+    .pill.role-sales{background:#f3deea;color:#8c3163}
+    .pill.role-batya{background:var(--color-primary-soft);color:var(--color-primary)}
+    .inbox{display:grid;gap:var(--space-3)}
+    .inbox-item{padding:var(--space-4)}
+    .inbox-item strong{display:block;margin-bottom:.25rem}
+    .inbox-item p{margin:0 0 .55rem;color:var(--color-text-muted);font-size:var(--text-sm)}
+    .row{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
+    .small{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .progress{height:10px;background:var(--color-surface-offset);border-radius:999px;overflow:hidden;margin-top:.7rem}
+    .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--color-primary),var(--color-success));width:0}
+    .section-title{font-size:var(--text-lg);margin:0}
+    .empty{padding:.9rem;border:1px dashed var(--color-border);border-radius:var(--radius-md);color:var(--color-text-muted);font-size:var(--text-sm)}
+    @media (max-width: 1080px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.grid-top,.layout,.board{grid-template-columns:1fr 1fr}}
+    @media (max-width: 720px){.content{padding:var(--space-4)}.grid-top,.layout,.board{grid-template-columns:1fr}.hero-actions{width:100%}.hero-actions .btn{flex:1}.sidebar{padding:var(--space-4)}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-mark" aria-hidden="true">Б</div>
+        <div>
+          <h1>Батя</h1>
+          <p>Мастер-агент и штаб задач</p>
+        </div>
+      </div>
+      <nav class="nav-card" aria-label="Разделы">
+        <ul>
+          <li><a href="#dashboard">Обзор</a></li>
+          <li><a href="#capture">Поставить задачу</a></li>
+          <li><a href="#board">Доска задач</a></li>
+          <li><a href="#inbox">Входящие материалы</a></li>
+          <li><a href="#protocol">Протокол Батя</a></li>
+        </ul>
+      </nav>
+      <div class="hint">
+        <strong>Как работать</strong>
+        <div class="small">Кидай Батe любые материалы с комментарием. Он классифицирует, маршрутизирует к роли и превращает хаос в план работ.</div>
+      </div>
+      <button class="theme-toggle" data-theme-toggle aria-label="Переключить тему">Сменить тему</button>
+    </aside>
+
+    <main class="content" id="dashboard">
+      <section class="hero">
+        <div>
+          <h2>Дашборд задач для мастер-агента «Батя»</h2>
+          <p>Это рабочая панель, чтобы не теряться: здесь фиксируются задачи, источники, маршрутизация по ролям и текущий прогресс. Состояние можно экспортировать в JSON и затем снова импортировать в этот же дашборд.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="seedDemo">Заполнить стартовым планом</button>
+          <button class="btn btn-secondary" id="exportBtn">Экспортировать прогресс</button>
+          <label class="btn btn-secondary" for="importFile" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">Импортировать JSON</label>
+          <input id="importFile" type="file" accept="application/json" hidden />
+        </div>
+      </section>
+
+      <section class="grid-top" aria-label="Ключевые показатели">
+        <article class="widget"><div class="label">Всего задач</div><div class="value" id="metricTotal">0</div><div class="meta ok">Все роли в одной системе</div></article>
+        <article class="widget"><div class="label">В работе</div><div class="value" id="metricProgress">0</div><div class="meta warn">Удерживай фокус на 3–5 задачах</div></article>
+        <article class="widget"><div class="label">Завершено</div><div class="value" id="metricDone">0</div><div class="meta ok">Превращай в шаблоны и базу знаний</div></article>
+        <article class="widget"><div class="label">Готовность штаба</div><div class="value" id="metricPercent">0%</div><div class="meta ok">Процент закрытых задач по текущему циклу</div></article>
+      </section>
+
+      <section class="layout" id="capture">
+        <form class="composer" id="taskForm">
+          <h3>Новая задача для Батя</h3>
+          <div class="field">
+            <label for="taskTitle">Название задачи</label>
+            <input id="taskTitle" required placeholder="Например: собрать мастер-промпт Батя" />
+          </div>
+          <div class="field">
+            <label for="taskRole">Кому маршрутизировать</label>
+            <select id="taskRole">
+              <option value="batya">Батя / оркестратор</option>
+              <option value="method">Методолог</option>
+              <option value="product">Продуктолог</option>
+              <option value="marketing">Маркетолог</option>
+              <option value="sales">Продажник</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="taskStatus">Статус</label>
+            <select id="taskStatus">
+              <option value="inbox">Вход</option>
+              <option value="todo">К исполнению</option>
+              <option value="progress">В работе</option>
+              <option value="done">Готово</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="taskDesc">Комментарий / контекст</label>
+            <textarea id="taskDesc" placeholder="Что это за материал, что с ним нужно сделать, какой ожидаешь результат"></textarea>
+          </div>
+          <div class="field">
+            <label for="taskSource">Источник</label>
+            <input id="taskSource" placeholder="Отзыв / консультация / видео / заметка / идея" />
+          </div>
+          <button class="btn btn-primary" type="submit">Добавить задачу</button>
+        </form>
+
+        <section class="protocol" id="protocol">
+          <h3>Протокол Батя</h3>
+          <ul>
+            <li>Принимает любые материалы: отзывы, расшифровки, идеи, заметки, видео, аудио-комментарии.</li>
+            <li>Сначала классифицирует материал: продукт, методология, маркетинг, продажи, база знаний.</li>
+            <li>Потом решает: один агент или несколько ролей сразу.</li>
+            <li>Собирает единый итог: что сделать, кем, в каком порядке, что ждёт подтверждения от тебя.</li>
+            <li>Фиксирует прогресс, чтобы ты не терялся между идеями и задачами.</li>
+          </ul>
+          <div class="tags">
+            <span class="tag">Оркестрация</span>
+            <span class="tag">Маршрутизация</span>
+            <span class="tag">Фокус</span>
+            <span class="tag">База знаний</span>
+          </div>
+          <div class="progress" aria-label="Общий прогресс"><span id="globalProgress"></span></div>
+        </section>
+      </section>
+
+      <section class="board-wrap" id="board">
+        <div class="board-head">
+          <h3 class="section-title">Доска задач</h3>
+          <div class="small">Перетаскивай карточки между колонками. Вся работа завязана на текущем файле, а для сохранения между сессиями используй экспорт JSON.</div>
+        </div>
+        <div class="board">
+          <section class="board-col" data-status="inbox"><div class="col-title"><h4>Вход</h4><span class="count">0</span></div><div class="task-list"></div></section>
+          <section class="board-col" data-status="todo"><div class="col-title"><h4>К исполнению</h4><span class="count">0</span></div><div class="task-list"></div></section>
+          <section class="board-col" data-status="progress"><div class="col-title"><h4>В работе</h4><span class="count">0</span></div><div class="task-list"></div></section>
+          <section class="board-col" data-status="done"><div class="col-title"><h4>Готово</h4><span class="count">0</span></div><div class="task-list"></div></section>
+        </div>
+      </section>
+
+      <section id="inbox">
+        <div class="inbox-head">
+          <h3 class="section-title">Входящие материалы</h3>
+          <div class="small">Здесь удобно хранить примеры того, что можно кидать Батe.</div>
+        </div>
+        <div class="inbox" id="materialInbox"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      tasks: [],
+      inbox: [
+        {title:'Отзывы выпускников', text:'Сильные цитаты, результаты, с чем пришёл и что изменилось.', tags:['маркетинг','база знаний']},
+        {title:'Расшифровки консультаций', text:'Боли собственников, внутренние разговоры, удачные интервенции.', tags:['методология','продукт']},
+        {title:'Записи групповых встреч', text:'Повторяющиеся вопросы, формулировки, которые цепляют группу.', tags:['методология','клуб']},
+        {title:'Видео-материалы', text:'Уроки, эфиры, лекции — с краткой выжимкой и тезисами.', tags:['контент','продукт']}
+      ]
+    };
+
+    const roleMap = {
+      batya:'Батя', method:'Методолог', product:'Продуктолог', marketing:'Маркетолог', sales:'Продажник'
+    };
+    const statusMap = { inbox:'Вход', todo:'К исполнению', progress:'В работе', done:'Готово' };
+
+    function uid(){ return Math.random().toString(36).slice(2,10); }
+
+    function renderInbox(){
+      const box = document.getElementById('materialInbox');
+      box.innerHTML = '';
+      state.inbox.forEach(item => {
+        const el = document.createElement('article');
+        el.className = 'inbox-item';
+        el.innerHTML = `<strong>${item.title}</strong><p>${item.text}</p><div class="row">${item.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`;
+        box.appendChild(el);
+      });
+    }
+
+    function taskCard(task){
+      const div = document.createElement('article');
+      div.className = 'task';
+      div.draggable = true;
+      div.dataset.id = task.id;
+      div.innerHTML = `
+        <h5>${escapeHtml(task.title)}</h5>
+        <p>${escapeHtml(task.desc || 'Без комментария')}</p>
+        <footer>
+          <span class="pill role-${task.role}">${roleMap[task.role]}</span>
+          <span>${escapeHtml(task.source || 'Без источника')}</span>
+        </footer>`;
+      div.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', task.id);
+      });
+      div.addEventListener('dblclick', () => {
+        if(confirm('Удалить задачу?')) {
+          state.tasks = state.tasks.filter(t => t.id !== task.id);
+          renderAll();
+        }
+      });
+      return div;
+    }
+
+    function renderBoard(){
+      document.querySelectorAll('.board-col').forEach(col => {
+        const status = col.dataset.status;
+        const list = col.querySelector('.task-list');
+        list.innerHTML = '';
+        const tasks = state.tasks.filter(t => t.status === status);
+        col.querySelector('.count').textContent = tasks.length;
+        if(!tasks.length){
+          const empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'Пока пусто';
+          list.appendChild(empty);
+        } else {
+          tasks.forEach(task => list.appendChild(taskCard(task)));
+        }
+      });
+    }
+
+    function renderMetrics(){
+      const total = state.tasks.length;
+      const progress = state.tasks.filter(t => t.status === 'progress').length;
+      const done = state.tasks.filter(t => t.status === 'done').length;
+      const percent = total ? Math.round(done / total * 100) : 0;
+      document.getElementById('metricTotal').textContent = total;
+      document.getElementById('metricProgress').textContent = progress;
+      document.getElementById('metricDone').textContent = done;
+      document.getElementById('metricPercent').textContent = percent + '%';
+      document.getElementById('globalProgress').style.width = percent + '%';
+    }
+
+    function renderAll(){ renderInbox(); renderBoard(); renderMetrics(); }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+    }
+
+    document.getElementById('taskForm').addEventListener('submit', e => {
+      e.preventDefault();
+      state.tasks.unshift({
+        id: uid(),
+        title: document.getElementById('taskTitle').value.trim(),
+        role: document.getElementById('taskRole').value,
+        status: document.getElementById('taskStatus').value,
+        desc: document.getElementById('taskDesc').value.trim(),
+        source: document.getElementById('taskSource').value.trim()
+      });
+      e.target.reset();
+      renderAll();
+    });
+
+    document.querySelectorAll('.board-col').forEach(col => {
+      col.addEventListener('dragover', e => e.preventDefault());
+      col.addEventListener('drop', e => {
+        e.preventDefault();
+        const id = e.dataTransfer.getData('text/plain');
+        const task = state.tasks.find(t => t.id === id);
+        if(task){ task.status = col.dataset.status; renderAll(); }
+      });
+    });
+
+    document.getElementById('seedDemo').addEventListener('click', () => {
+      if(state.tasks.length && !confirm('Заменить текущие задачи стартовым планом?')) return;
+      state.tasks = [
+        {id:uid(), title:'Собрать мастер-промпт Батя', role:'batya', status:'todo', desc:'Определить правила маршрутизации задач и формат итогового ответа.', source:'Старт системы'},
+        {id:uid(), title:'Описать 4 роли специалистов', role:'batya', status:'todo', desc:'Методолог, продуктолог, маркетолог, продажник — зоны ответственности и выходы.', source:'Архитектура ИИ штаба'},
+        {id:uid(), title:'Собрать 20 сильных отзывов', role:'marketing', status:'inbox', desc:'Выделить кейсы, которые усиливают доверие и показывают трансформацию.', source:'Отзывы выпускников'},
+        {id:uid(), title:'Вытащить повторяющиеся боли из консультаций', role:'method', status:'progress', desc:'Собрать паттерны запросов собственников с выручкой 1–10 млн руб/мес.', source:'Расшифровки консультаций'},
+        {id:uid(), title:'Сделать черновик клуба на 2 уровня', role:'product', status:'todo', desc:'Основной уровень и премиум-уровень: логика, формат, ритм, обещание результата.', source:'Идея клуба'},
+        {id:uid(), title:'Подготовить сценарий личных приглашений', role:'sales', status:'todo', desc:'Сообщения для первого ядра клиентов на тестовый набор.', source:'Личные контакты'},
+        {id:uid(), title:'Создать шаблон карточки материала', role:'batya', status:'done', desc:'Единый шаблон для отзывов, консультаций, видео и групп.', source:'База знаний'}
+      ];
+      renderAll();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'batya-dashboard-state.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('importFile').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if(!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if(Array.isArray(parsed.tasks) && Array.isArray(parsed.inbox)) {
+          state.tasks = parsed.tasks;
+          state.inbox = parsed.inbox;
+          renderAll();
+        } else {
+          alert('Файл не похож на экспорт Батя-дашборда');
+        }
+      } catch(err) {
+        alert('Не удалось импортировать файл');
+      }
+      e.target.value = '';
+    });
+
+    document.querySelector('[data-theme-toggle]').addEventListener('click', () => {
+      const root = document.documentElement;
+      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
